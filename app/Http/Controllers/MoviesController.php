@@ -37,7 +37,7 @@ class MoviesController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-
+        
         $validation = Validator::make($data, [
             'title' => 'required', 
             'original_title' => 'required',
@@ -48,6 +48,7 @@ class MoviesController extends Controller
             'release_date' => 'required',
             'runtime' => 'required',
             'tmdb_id' => 'required',
+            'genres' => 'required'
          ]);
 
         if ($validation->fails()) {
@@ -55,6 +56,8 @@ class MoviesController extends Controller
         }
 
         $movie = Movie::create($data);
+
+        $this->addTitleGenres($movie, $data['genres']);
     }
 
     /**
@@ -100,5 +103,26 @@ class MoviesController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function addTitleGenres($movie, $genres)
+    {
+        $genres = json_decode($genres, true);
+
+        if ($genres) {
+            $titleGenres = array();
+            
+            foreach ($genres as $genre) {
+                $titleGenre = array(
+                    'movie_id' => $movie->id,
+                    'genre_id' => $genre['id']
+                );
+
+                array_push($titleGenres, $titleGenre);
+            }
+
+            Movie::insertTitleGenres($titleGenres);
+        }
+
     }
 }

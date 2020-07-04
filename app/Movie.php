@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Movie extends Model
 {
@@ -19,4 +20,9 @@ class Movie extends Model
         'runtime',
         'tmdb_id',
     ];
+
+    public static function insertTitleGenres($titleGenres) 
+    {
+        DB::table('title_genres')->insert($titleGenres);
+    }
 }
