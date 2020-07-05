@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Movie;
 use Illuminate\Http\Request;
 use Validator;
+use Illuminate\Support\Facades\DB;
 
 class MoviesController extends Controller
 {
@@ -55,9 +56,13 @@ class MoviesController extends Controller
             return ['status'=> false, 'validation'=> true, 'erros'=>$validation->errors()];
         }
 
+        DB::beginTransaction();
+
         $movie = Movie::create($data);
 
         $this->addTitleGenres($movie, $data['genres']);
+
+        DB::commit();
     }
 
     /**
@@ -107,8 +112,6 @@ class MoviesController extends Controller
 
     public function addTitleGenres($movie, $genres)
     {
-        $genres = json_decode($genres, true);
-
         if ($genres) {
             $titleGenres = array();
             
