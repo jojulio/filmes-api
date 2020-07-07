@@ -25,4 +25,13 @@ class Movie extends Model
     {
         DB::table('title_genres')->insert($titleGenres);
     }
+
+    public function getGenresByMovie($id)
+    {
+        return DB::table('genres as g')
+            ->select('g.*')
+            ->leftJoin('title_genres as t', 't.genre_id', '=', 'g.id')
+            ->where('t.movie_id', $id)
+            ->get();
+    }
 }

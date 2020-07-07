@@ -16,7 +16,14 @@ class MoviesController extends Controller
      */
     public function index()
     {
-        //
+        $movie = new Movie();
+        $movies = $movie->get();
+
+        foreach ($movies as $key => $value) {
+            $movies[$key]['genres'] = $movie->getGenresByMovie($value['id']);
+        }
+        
+        return ['status'=> true, 'movies'=> $movies];
     }
 
     /**
