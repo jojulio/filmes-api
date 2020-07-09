@@ -80,7 +80,12 @@ class MoviesController extends Controller
      */
     public function show($id)
     {
-        //
+        $model = new Movie();
+        $movie = $model->find($id);
+
+        $movie['genres'] = $model->getGenresByMovie($movie['id']);
+
+        return $movie;
     }
 
     /**
