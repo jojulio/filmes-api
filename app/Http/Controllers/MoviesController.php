@@ -16,7 +16,14 @@ class MoviesController extends Controller
      */
     public function index()
     {
-        //
+        $movie = new Movie();
+        $movies = $movie->get();
+
+        foreach ($movies as $key => $value) {
+            $movies[$key]['genres'] = $movie->getGenresByMovie($value['id']);
+        }
+        
+        return ['status'=> true, 'movies'=> $movies];
     }
 
     /**
@@ -50,10 +57,10 @@ class MoviesController extends Controller
             'runtime' => 'required',
             'tmdb_id' => 'required',
             'genres' => 'required'
-         ]);
+        ]);
 
         if ($validation->fails()) {
-            return ['status'=> false, 'validation'=> true, 'erros'=>$validation->errors()];
+            return ['status'=> false, 'validation'=> true, 'erros'=> $validation->errors()];
         }
 
         DB::beginTransaction();
@@ -63,6 +70,8 @@ class MoviesController extends Controller
         $this->addTitleGenres($movie, $data['genres']);
 
         DB::commit();
+
+        return ['status'=> true, 'movie_id'=> $movie->id];
     }
 
     /**
@@ -73,7 +82,12 @@ class MoviesController extends Controller
      */
     public function show($id)
     {
-        //
+        $model = new Movie();
+        $movie = $model->find($id);
+
+        $movie['genres'] = $model->getGenresByMovie($id);
+
+        return $movie;
     }
 
     /**
@@ -96,7 +110,37 @@ class MoviesController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->all();
+        
+        $validation = Validator::make($data, [
+            'title' => 'required', 
+            'original_title' => 'required',
+            'poster_path' => 'required',
+            'imdb_id' => 'required',
+            'original_language' => 'required',
+            'overview' => 'required',
+            'release_date' => 'required',
+            'runtime' => 'required',
+            'tmdb_id' => 'required',
+            'genres' => 'required'
+        ]);
+
+        if ($validation->fails()) {
+            return ['status'=> false, 'validation' => true, 'erros' => $validation->errors()];
+        }
+
+        DB::beginTransaction();
+        $movie = Movie::find($id);
+        unset($data['id']);
+
+        $movie->update($data);
+
+        $this->removeTitleGenres($id);
+        $this->addTitleGenres($movie, $data['genres']);
+
+        DB::commit();
+
+        return ['status'=> true, 'movie_id'=> $id];
     }
 
     /**
@@ -127,5 +171,11 @@ class MoviesController extends Controller
             Movie::insertTitleGenres($titleGenres);
         }
 
+    }
+
+    public function removeTitleGenres($movie_id)
+    {
+        $movie = new Movie();
+        $movie::deleteTitleGenres($movie_id);        
     }
 }
