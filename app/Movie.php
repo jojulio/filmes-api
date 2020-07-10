@@ -26,6 +26,11 @@ class Movie extends Model
         DB::table('title_genres')->insert($titleGenres);
     }
 
+    public static function deleteTitleGenres($movie_id)
+    {
+        DB::table('title_genres')->where('movie_id', '=', $movie_id)->delete();
+    }
+
     public function getGenresByMovie($id)
     {
         return DB::table('genres as g')

@@ -24,5 +24,6 @@ Route::group(['middleware' => ['apiKey']], function() {
 
     Route::get('get/movies', 'MoviesController@index');
     Route::post('save/movies', 'MoviesController@store');
+    Route::put('update/movie/{id}', 'MoviesController@update');
     Route::get('get/movies/{id}', 'MoviesController@show');
 });
