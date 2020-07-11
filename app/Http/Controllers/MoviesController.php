@@ -17,13 +17,25 @@ class MoviesController extends Controller
     public function index()
     {
         $movie = new Movie();
-        $movies = $movie->get();
+        $movies = DB::table('movies')->paginate(6);
 
-        foreach ($movies as $key => $value) {
-            $movies[$key]['genres'] = $movie->getGenresByMovie($value['id']);
+        foreach ($movies->items() as $key => $value) {
+            $movies[$key]->genres = $movie->getGenresByMovie($value->id);
         }
-        
-        return ['status'=> true, 'movies'=> $movies];
+
+        $response = [
+            'pagination' => [
+                'total' => $movies->total(),
+                'per_page' => $movies->perPage(),
+                'current_page' => $movies->currentPage(),
+                'last_page' => $movies->lastPage(),
+                'from' => $movies->firstItem(),
+                'to' => $movies->lastItem()
+            ],
+            'data' => $movies
+        ];
+       
+        return ['status'=> true, 'movies'=> $response]; 
     }
 
     /**
