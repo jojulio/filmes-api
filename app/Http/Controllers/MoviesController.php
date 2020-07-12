@@ -14,10 +14,15 @@ class MoviesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($genreId = null)
     {
         $movie = new Movie();
-        $movies = DB::table('movies')->paginate(6);
+
+        if ($genreId) {
+            $movies = $movie->getMoviesByGenre($genreId);
+        } else {
+            $movies = DB::table('movies')->paginate(6);
+        }
 
         foreach ($movies->items() as $key => $value) {
             $movies[$key]->genres = $movie->getGenresByMovie($value->id);
