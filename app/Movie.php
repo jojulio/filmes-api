@@ -39,4 +39,13 @@ class Movie extends Model
             ->where('t.movie_id', $id)
             ->get();
     }
+
+    public function getMoviesByGenre($genreId)
+    {
+        return DB::table('movies as m')
+            ->select('m.*')
+            ->leftJoin('title_genres as t', 't.movie_id', '=', 'm.id')
+            ->where('t.genre_id', $genreId)
+            ->paginate(6);
+    }
 }

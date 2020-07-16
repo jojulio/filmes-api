@@ -14,16 +14,33 @@ class MoviesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($genreId = null)
     {
         $movie = new Movie();
-        $movies = $movie->get();
 
-        foreach ($movies as $key => $value) {
-            $movies[$key]['genres'] = $movie->getGenresByMovie($value['id']);
+        if ($genreId) {
+            $movies = $movie->getMoviesByGenre($genreId);
+        } else {
+            $movies = DB::table('movies')->paginate(6);
         }
-        
-        return ['status'=> true, 'movies'=> $movies];
+
+        foreach ($movies->items() as $key => $value) {
+            $movies[$key]->genres = $movie->getGenresByMovie($value->id);
+        }
+
+        $response = [
+            'pagination' => [
+                'total' => $movies->total(),
+                'per_page' => $movies->perPage(),
+                'current_page' => $movies->currentPage(),
+                'last_page' => $movies->lastPage(),
+                'from' => $movies->firstItem(),
+                'to' => $movies->lastItem()
+            ],
+            'data' => $movies
+        ];
+       
+        return ['status'=> true, 'movies'=> $response]; 
     }
 
     /**
